@@ -1,23 +1,35 @@
 var express = require('express');
-var request = require("request");
-var cheerio = require("cheerio");
 var router = express.Router();
+var urlFrontierComponent = require('../components/url_frontier');
+var urlListComponent = require('../components/url_list');
+var linkExtractorComponent = require('../components/link_extractor');
+var websiteGetContentComponent =  require('../components/website_content_getter.js');
 
-/* GET home page. */
+
 router.get('/', function (req, res, next) {
-    request({
-        uri: "http://www.kristogodari.com",
-    }, function(error, response, body) {
-        var $ = cheerio.load(body);
 
-        $("a").each(function() {
-            var link = $(this);
-            var text = link.text();
-            var href = link.attr("href");
+    var urlList = new urlListComponent();
+    var urlFrontier = new urlFrontierComponent();
+    var linkExtractor = new linkExtractorComponent();
+    var websiteConentGetter = new websiteGetContentComponent();
 
-            console.log(text + " -> " + href);
-        });
+    var url = urlList.get().pop();
+    var content = websiteConentGetter.getContent(url, function(body){
+        extractLinks(body);
     });
+
+    // extract links and add to the url frontier.
+    function extractLinks(body){
+        var allLinks =  linkExtractor.getAllLinks(body);
+        for (var i = 0; i < allLinks.length; i++) {
+            urlFrontier.add(allLinks[i]);
+        }
+    }
+
+    for (var i = 0; i < urlFrontier.length(); i++) {
+        console.log(urlFrontier.get());
+    }
+
 });
 
 module.exports = router;
