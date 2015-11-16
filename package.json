@@ -16,8 +16,10 @@
     "fs": "0.0.2",
     "gulp": "^3.9.0",
     "gulp-nodemon": "^2.0.4",
+    "is-absolute-url": "^2.0.0",
     "morgan": "~1.6.1",
     "request": "^2.65.0",
-    "serve-favicon": "~2.3.0"
+    "serve-favicon": "~2.3.0",
+    "valid-url": "^1.0.9"
   }
 }

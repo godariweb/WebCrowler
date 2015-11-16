@@ -14,7 +14,9 @@ function UrlList() {
  */
 UrlList.prototype.initialiseList = function () {
     //this.list.push("http://www.kristogodari.com");
-    this.list.push("http://www.top-channel.tv/lajme/");
+    //this.list.push("http://www.protv.ro/");
+    this.list.push("http://www.bbc.com/sport/0/football/");
+    //this.list.push("https://en.wikipedia.org/wiki/Isaac_Newton");
 }
 
 /**

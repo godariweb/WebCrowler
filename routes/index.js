@@ -20,16 +20,13 @@ router.get('/', function (req, res, next) {
 
     // extract links and add to the url frontier.
     function extractLinks(body){
-        var allLinks =  linkExtractor.getAllLinks(body);
+        var allLinks =  linkExtractor.getAllLinks(url, body);
+        //console.log(allLinks);
         for (var i = 0; i < allLinks.length; i++) {
             urlFrontier.add(allLinks[i]);
         }
+        urlFrontier.iteration();
     }
-
-    for (var i = 0; i < urlFrontier.length(); i++) {
-        console.log(urlFrontier.get());
-    }
-
 });
 
 module.exports = router;
