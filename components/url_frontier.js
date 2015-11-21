@@ -22,7 +22,7 @@ UrlFrontier.prototype.add = function (url) {
  * Returns the last inserted  url in queue.
  */
 UrlFrontier.prototype.get = function () {
-    return fifoQueue.pop();
+    return fifoQueue.shift();
 };
 
 
@@ -41,6 +41,26 @@ UrlFrontier.prototype.iteration = function () {
         console.log(node.value);
     })
 };
+
+/**
+ * Clear the queue
+ */
+UrlFrontier.prototype.clear = function () {
+    fifoQueue.clear()
+};
+
+/**
+ * Checks if link is already in queue
+ */
+UrlFrontier.prototype.isLinkInQueue = function (link) {
+    fifoQueue.forEach(function (value, node) {
+        if (node.value == link) {
+            return true;
+        }
+    })
+    return false;
+};
+
 
 // export the class
 module.exports = UrlFrontier;

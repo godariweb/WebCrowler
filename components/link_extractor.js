@@ -2,6 +2,7 @@ var cheerio = require("cheerio");
 var validUrl = require('valid-url');
 var isAbsoluteUrl = require('is-absolute-url');
 var urlparser = require("url");
+var Regex = require("regex");
 
 // Constructor
 function LinkExtrator() {
@@ -24,16 +25,20 @@ LinkExtrator.prototype.getAllLinks = function (url, body) {
             if (href) {
                 if (isAbsoluteUrl(href)) {
                     if (validUrl.isUri(href)) {
-                        //var cleanUrl = this.cleanTheUrl(href);
-                        links.push(href);
-                        numbOfCleanUrl++;
+                        var cleanUrl = cleanTheUrl(href);
+                        if (!isLinkSocialMedia(cleanUrl)) {
+                            links.push(cleanUrl);
+                            numbOfCleanUrl++;
+                        }
                     }
                 } else {
                     var tempUrl = baseUrl + '/' + href;
                     if (validUrl.isUri(tempUrl)) {
-                        //var cleanUrl = this.cleanTheUrl(tempUrl);
-                        links.push(tempUrl);
-                        numbOfCleanUrl++;
+                        var cleanUrl = cleanTheUrl(tempUrl);
+                        if (!isLinkSocialMedia(cleanUrl)) {
+                            links.push(cleanUrl);
+                            numbOfCleanUrl++;
+                        }
                     }
                 }
             }
@@ -62,13 +67,71 @@ LinkExtrator.prototype.getBaseUrl = function (url) {
  * @param url
  * @returns {*}
  */
-LinkExtrator.prototype.cleanTheUrl = function(url){
+function cleanTheUrl(url) {
     var lastCharacter = url.slice(-1);
-    if(lastCharacter == '#'){
+    if (lastCharacter == '#') {
         return url.substring(0, url.length - 1);
     }
     return url;
 }
+
+/**
+ *
+ * @param url
+ */
+function isLinkSocialMedia(url) {
+    var socialMediaLinks = [
+        'google.com',
+        'facebook.com',
+        'youtube.com',
+        'linkedin.com',
+        'flickr.com',
+        'twitter.com',
+        'instagram.com',
+        'pinterest.com',
+        'qzone.qq.com',
+        'vk.com',
+        'tumblr.com',
+        'renren.com',
+        'bebo.com',
+        'tagged.com',
+        'orcut.com',
+        'netlog.com',
+        'goodreads.com',
+        'soundcloud.com',
+        'about.me',
+        'ask.fm'
+    ];
+
+    var socialMedia = [];
+
+    socialMediaLinks.forEach(checkIfSocialMedia);
+
+    function checkIfSocialMedia(element, index, array) {
+        if (url.indexOf(element) > -1) {
+            socialMedia.push(element);
+        }
+    }
+
+    if (socialMedia.length > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * Check if link is from domain.
+ * @param url
+ */
+function isLinkFromThisDomain(link, domain) {
+    if (link.indexOf(domain) > -1) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 
 // export the class
 module.exports = LinkExtrator;
