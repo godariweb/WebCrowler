@@ -53,12 +53,18 @@ UrlFrontier.prototype.clear = function () {
  * Checks if link is already in queue
  */
 UrlFrontier.prototype.isLinkInQueue = function (link) {
+    var duplicateElements = [];
     fifoQueue.forEach(function (value, node) {
         if (node.value == link) {
-            return true;
+            duplicateElements.push(value);
         }
     })
-    return false;
+
+    if (duplicateElements.length > 0) {
+        return true;
+    } else {
+        return false;
+    }
 };
 
 

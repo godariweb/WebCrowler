@@ -1,14 +1,3 @@
-Error: Invalid protocol: dhttp:
-Error: Invalid protocol: dhttp:
-Error: Invalid protocol: dhttp:
-Error: Invalid protocol: dhttp:
-Error: Invalid protocol: dhttp:
-Error: Invalid protocol: dhttp:
-Error: Invalid protocol: dhttp:
-Error: options.uri is a required argument
-Error: options.uri is a required argument
-Error: options.uri is a required argument
-Error: options.uri is a required argument
 Error: options.uri is a required argument
 Error: options.uri is a required argument
 Error: options.uri is a required argument

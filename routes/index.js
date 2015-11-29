@@ -59,6 +59,7 @@ function extractLinks(url, body) {
     //console.log(allLinks);
     for (var i = 0; i < allLinks.length; i++) {
         if(!urlFrontier.isLinkInQueue(allLinks[i])){
+           // console.log("--> " + allLinks[i]);
             urlFrontier.add(allLinks[i]);
         }
     }

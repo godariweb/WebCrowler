@@ -2,6 +2,7 @@ var cheerio = require("cheerio");
 var validUrl = require('valid-url');
 var isAbsoluteUrl = require('is-absolute-url');
 var urlparser = require("url");
+var striptags = require('striptags');
 extractor = require('unfluff');
 
 
@@ -15,8 +16,8 @@ function ContentExtractor() {
  * @param html
  */
 ContentExtractor.prototype.getAllTexts = function(html){
-    data = extractor(html);
-    return data.text;
+    data = striptags(html);
+    return data.replace(/\s\s+/g, ' ');
 }
 
 ContentExtractor.prototype.getParagraphs = function(){

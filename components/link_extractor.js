@@ -26,7 +26,7 @@ LinkExtrator.prototype.getAllLinks = function (url, body) {
                 if (isAbsoluteUrl(href)) {
                     if (validUrl.isUri(href)) {
                         var cleanUrl = cleanTheUrl(href);
-                        if (!isLinkSocialMedia(cleanUrl)) {
+                        if (!isLinkSocialMedia(cleanUrl) && !isLinkAResource(cleanUrl) && isLinkFromThisDomain(cleanUrl, baseUrl) && !isUrlToSendMail(cleanUrl)) {
                             links.push(cleanUrl);
                             numbOfCleanUrl++;
                         }
@@ -35,7 +35,7 @@ LinkExtrator.prototype.getAllLinks = function (url, body) {
                     var tempUrl = baseUrl + '/' + href;
                     if (validUrl.isUri(tempUrl)) {
                         var cleanUrl = cleanTheUrl(tempUrl);
-                        if (!isLinkSocialMedia(cleanUrl)) {
+                        if (!isLinkSocialMedia(cleanUrl) && !isLinkAResource(cleanUrl) && isLinkFromThisDomain(cleanUrl, baseUrl) && !isUrlToSendMail(cleanUrl)) {
                             links.push(cleanUrl);
                             numbOfCleanUrl++;
                         }
@@ -68,13 +68,22 @@ LinkExtrator.prototype.getBaseUrl = function (url) {
  * @returns {*}
  */
 function cleanTheUrl(url) {
-    var lastCharacter = url.slice(-1);
-    if (lastCharacter == '#') {
-        return url.substring(0, url.length - 1);
-    }
-    return url;
+    return url.split('#')[0];
 }
 
+/**
+ * Check if link is used to send an email
+ * http://kristogodari.com/mailto:kristo.godari@gmail.com
+ * @param url
+ * @returns {boolean}
+ */
+function isUrlToSendMail(url){
+    if (url.indexOf('mailto') > -1) {
+        return true;
+    } else {
+        return false;
+    }
+}
 /**
  *
  * @param url
@@ -126,6 +135,56 @@ function isLinkSocialMedia(url) {
  */
 function isLinkFromThisDomain(link, domain) {
     if (link.indexOf(domain) > -1) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * Check if link is a resource ex: image, pdf, doc...
+ * @param link
+ * @returns {boolean}
+ */
+function isLinkAResource(link) {
+    var staticFilesLink = [
+        '.css',
+        '.js',
+        '.avi',
+        '.doc',
+        '.docx',
+        '.ppt',
+        '.pptx',
+        '.exe',
+        '.gif',
+        '.jpg',
+        '.jpeg',
+        '.mid',
+        '.midi',
+        '.mp3',
+        '.mpg',
+        '.mpeg',
+        '.qt',
+        '.pdf',
+        '.png',
+        '.ram',
+        '.rar',
+        '.zip',
+        '.tiff',
+        '.wav',
+    ];
+
+    var staticFilesLinks = [];
+
+    staticFilesLink.forEach(checkIfStaticFiles);
+
+    function checkIfStaticFiles(element, index, array) {
+        if (link.match(element + "$")) {
+            staticFilesLinks.push(element);
+        }
+    }
+
+    if (staticFilesLinks.length > 0) {
         return true;
     } else {
         return false;
