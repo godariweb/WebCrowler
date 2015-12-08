@@ -14,7 +14,7 @@ function UrlList() {
  */
 UrlList.prototype.initialiseList = function () {
     //this.list.push("http://www.top-channel.tv/lajme/");
-    this.list.push("http://vizionplus.al/");
+    this.list.push("http://campanii.gandul.info/plagiatorii/");
 }
 
 /**
@@ -30,6 +30,14 @@ UrlList.prototype.add = function (url) {
 UrlList.prototype.get = function () {
     return this.list;
 };
+
+/**
+ * Returns the url array.
+ */
+UrlList.prototype.length = function () {
+    return this.list.length;
+};
+
 
 // export the class
 module.exports = UrlList;
