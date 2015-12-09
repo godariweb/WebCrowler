@@ -6,13 +6,12 @@ var express = require('express');
 var urlFrontierComponent = require('../components/url_frontier');
 var urlListComponent = require('../components/url_list');
 var linkExtractorComponent = require('../components/link_extractor');
-var websiteGetContentComponent = require('../components/website_content_getter.js');
-var contentExtractorComponent = require('../components/content_extractor.js');
-var mysqlConnection = require('../services/mysql');
+var websiteGetContentComponent = require('../components/website_content_getter');
+var mysqlOperationsComponent = require('../services/mysql_operations');
 var logComponent = require('../services/log_service');
-var fs = require('fs');
-var risComponent = require('../components/rewind_input_steram.js');
+var risComponent = require('../components/rewind_input_steram');
 var async = require('async');
+var htmlToText = require('html-to-text');
 
 /**
  * Initializing variables
@@ -22,12 +21,13 @@ var urlList = new urlListComponent();
 var urlFrontier = new urlFrontierComponent();
 var linkExtractor = new linkExtractorComponent();
 var websiteConentGetter = new websiteGetContentComponent();
-var contentExtractor = new contentExtractorComponent();
 var ris = new risComponent();
 var log = new logComponent();
+var mysqlOperations = new mysqlOperationsComponent();
 
 
 var currentCrawlingUrl = null;
+var currentWebsiteId = null;
 
 /**
  * Index route.
@@ -42,7 +42,8 @@ router.get('/', function (req, res, next) {
  */
 function getNextWebsiteFromListAndStartCrawling() {
     urlFrontier.clear();
-    urlFrontier.add(urlList.get().pop());
+    urlFrontier.add(urlList.get().shift()[2]);
+    currentWebsiteId = urlList.get().shift()[0];
     console.log('Starting to crawl.... :)');
     startCrawling();
 }
@@ -125,8 +126,14 @@ function extractHtml(content, callback) {
  * Extract only text from content.
  */
 function extractText(content, callback) {
-    // put here code do extract text
-    callback(null, "Test content.");
+
+    var textContent = htmlToText.fromString(content, {
+        wordwrap: false,
+        ignoreHref: true,
+        ignoreImage: true
+    });
+
+    callback(null, textContent);
 }
 
 /**
@@ -167,7 +174,7 @@ function extractShares(content, callback) {
  * Add data to database and add lins to url frontier.
  */
 function processParalelResults(results) {
-    saveDataToSQL(results);
+    saveDataToDb(results);
     addExtractedLinksToUrlFrontier(results[2]);
 }
 
@@ -186,8 +193,25 @@ function addExtractedLinksToUrlFrontier(links) {
  * Insert data in database
  * @param data
  */
-function saveDataToSQL(data){
-    // to do adding data to sql
+function saveDataToDb(data) {
+
+    var websiteId = currentWebsiteId;
+    var websiteUrl = currentCrawlingUrl;
+    var contentHtml = data[0];
+    var contentText = data[1];
+    var pageViews = data[3];
+    var pageAdded = data[4];
+    var pageShares = data[5];
+
+    mysqlOperations.insertPageData(
+        websiteId,
+        websiteUrl,
+        contentHtml,
+        contentText,
+        pageViews,
+        pageAdded,
+        pageShares
+    );
 }
 
 module.exports = router;

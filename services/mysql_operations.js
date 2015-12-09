@@ -1,37 +1,43 @@
+var logComponent = require('../services/log_service');
+var mysqlConnection = require('../services/mysql');
+var log = new logComponent();
+
 function MysqlOperations() {
 }
-
 
 /**
  * Insert data to db.
  * @param websiteLink
  * @param websiteContent
  */
-function saveHtmlConent() {
-
+MysqlOperations.prototype.insertPageData = function (
+    websiteId, websiteUrl, contentHtml, contentText, pageViews,  pageAdded, pageShares) {
 
     var values = {
-        url: websiteLink,
-        content: websiteContent
+        website_id: websiteId,
+        uri: websiteUrl,
+        content: contentHtml,
+        content_text: contentText,
+        added: pageAdded,
+        views: pageViews,
+        shares: pageShares,
     };
-
-    var query = mysqlConnection.query('INSERT INTO posts SET ?', values, function (err, result) {
+    var query = mysqlConnection.query('INSERT INTO page SET ?', values, function (err, result) {
         if (err) {
-            var fileName = 'logs/mysql_error_log.txt';
-            fs.appendFile(fileName, err + '\r\n', function (err) {
-                if (err) {
-                    return console.log(err);
-                }
-                console.log("-- An error occurred and was logged in the file " + fileName);
-            })
+            log.sqlErrorLog(err);
         }
     });
-
-    //console.log(query.sql);
-
 }
 
 
+/**
+ * Get initial list of websites that need to be crowled
+ */
+MysqlOperations.prototype.getWebsitesList = function (callback) {
+    var query = mysqlConnection.query('SELECT * FROM `website`', function(err, results) {
+        callback(results);
+    });
+}
 
 // export the class
 module.exports = MysqlOperations;

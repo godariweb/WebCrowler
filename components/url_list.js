@@ -1,3 +1,6 @@
+var mysqlOperationsComponent = require('../services/mysql_operations');
+var mysqlOperations = new mysqlOperationsComponent();
+
 /**
  * UrlList Class
  * This object will contain an start url list that
@@ -13,8 +16,22 @@ function UrlList() {
  * Populating the list with predefined start urls.
  */
 UrlList.prototype.initialiseList = function () {
-    //this.list.push("http://www.top-channel.tv/lajme/");
-    this.list.push("http://campanii.gandul.info/plagiatorii/");
+    var self = this;
+    mysqlOperations.getWebsitesList(function (websitesList) {
+        websitesList.forEach(function (website) {
+
+            var websiteData = new Array();
+            websiteData.push(website.id);
+            websiteData.push(website.name);
+            websiteData.push( website.uri);
+            websiteData.push(website.description);
+            websiteData.push(website.views);
+            websiteData.push(website.rank);
+
+            self.list.push(websiteData);
+        });
+    });
+
 }
 
 /**
