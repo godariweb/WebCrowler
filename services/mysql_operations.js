@@ -31,10 +31,40 @@ MysqlOperations.prototype.insertPageData = function (
 
 
 /**
+ * Insert crawled link to db
+ */
+MysqlOperations.prototype.insertCrawledLinks = function (websiteId, link, callback) {
+
+    var values = {
+        website_id: websiteId,
+        link: link
+    };
+
+    var query = mysqlConnection.query('INSERT INTO `links_crawled` SET ?', values, function (err, result) {
+        if (err) {
+            log.sqlErrorLog(err);
+        }
+        callback(result);
+    });
+}
+
+
+/**
  * Get initial list of websites that need to be crowled
  */
 MysqlOperations.prototype.getWebsitesList = function (callback) {
     var query = mysqlConnection.query('SELECT * FROM `website`', function(err, results) {
+        callback(results);
+    });
+}
+
+
+/**
+ * Get crowled links
+ */
+MysqlOperations.prototype.getCrawledLinks = function (link, callback) {
+    var queryString = 'SELECT * FROM `links_crawled` WHERE `link`= "'+link+'"';
+    var query = mysqlConnection.query(queryString, function(err, results) {
         callback(results);
     });
 }

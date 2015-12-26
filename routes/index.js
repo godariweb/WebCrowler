@@ -27,7 +27,7 @@ var mysqlOperations = new mysqlOperationsComponent();
 
 
 var currentCrawlingUrl = null;
-var currentWebsiteId = null;
+global.currentWebsiteId = null;
 
 /**
  * Index route.
@@ -41,9 +41,10 @@ router.get('/', function (req, res, next) {
  * urlFrontier and start crawling.
  */
 function getNextWebsiteFromListAndStartCrawling() {
+    var websiteToCrowl= urlList.get().shift();
     urlFrontier.clear();
-    urlFrontier.add(urlList.get().shift()[2]);
-    currentWebsiteId = urlList.get().shift()[0];
+    urlFrontier.add(websiteToCrowl[2]);
+    global.currentWebsiteId = websiteToCrowl[0];
     console.log('Starting to crawl.... :)');
     startCrawling();
 }
@@ -195,7 +196,7 @@ function addExtractedLinksToUrlFrontier(links) {
  */
 function saveDataToDb(data) {
 
-    var websiteId = currentWebsiteId;
+    var websiteId = global.currentWebsiteId;
     var websiteUrl = currentCrawlingUrl;
     var contentHtml = data[0];
     var contentText = data[1];
