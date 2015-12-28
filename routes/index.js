@@ -103,7 +103,7 @@ function processWebsiteContent(websiteContent) {
             },
             function (callback) {
                 extractShares(ris.getContent(), callback)
-            },
+            }
         ],
         function (err, results) {
             if (!err) {
@@ -141,8 +141,8 @@ function extractText(content, callback) {
  * Extract links from content.
  */
 function extractLinks(content, callback) {
-    contentLinks = linkExtractor.getAllLinks(currentCrawlingUrl, content);
-    callback(null, contentLinks);
+ linkExtractor.getAllLinks(currentCrawlingUrl, content, callback);
+
 }
 
 /**

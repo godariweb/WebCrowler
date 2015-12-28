@@ -1,12 +1,11 @@
 var cheerio = require("cheerio");
-var validUrl = require('valid-url');
 var isAbsoluteUrl = require('is-absolute-url');
 var urlparser = require("url");
 var mysqlOperationsComponent = require('../services/mysql_operations');
 var async = require('async');
-var Regex = require("regex");
 var mysqlOperations = new mysqlOperationsComponent();
 var baseUrl = '';
+
 // Constructor
 function LinkExtrator() {
 }
@@ -16,70 +15,55 @@ function LinkExtrator() {
  * Returns an array with all links.
  * @param body
  */
-LinkExtrator.prototype.getAllLinks = function (url, body) {
+LinkExtrator.prototype.getAllLinks = function (url, body, mainCallback) {
     baseUrl = getBaseUrl(url);
-    var links = new Array();
+    var finalLinks = new Array();
     var $ = cheerio.load(body);
-    $("a").each(function () {
-        var linkHref = $(this).attr("href");
+    var links = $('a');
+    async.forEachOfSeries(links, function iterator(item, key, callback) {
+        var linkHref = item.attribs.href;
         if (linkHref) {
-            console.log("Original link:" + linkHref);
             linkHref = cleanLink(linkHref);
-            console.log("Cleaned link:" + linkHref);
             if (checkIfIsValid(linkHref)) {
-                console.log("Valid link:" + linkHref);
+                mysqlOperations.getCrawledLinks(linkHref, function (results) {
 
-                async.waterfall([
-                    function(callback) {
-                        mysqlOperations.getCrawledLinks(linkHref, function (results) {
-                            console.log("Get crawl link:" + linkHref);
-                            console.log("Query results:" + results);
-                            callback(null, results);
+                    if (results && results.length > 0) {
+                        // do nothing
+                        callback(null);
+                    } else {
+                        finalLinks.push(linkHref);
+                        mysqlOperations.insertCrawledLinks(global.currentWebsiteId, linkHref, function (result) {
+                            callback(null);
                         });
-                    },
-                    function(results, callback) {
-                        if (results.length > 0) {
-                            links.push(linkHref);
-                            callback(null, null);
-                        }else{
-                            callback(null, 'three');
-                        }
-                    },
-                    function(result, callback) {
-                        if(result != null){
-                            console.log("Link not crawled add link to db:" + linkHref);
-                            mysqlOperations.insertCrawledLinks(global.currentWebsiteId, linkHref, function(result){
-                                callback(null, 'done');
-                            });
-                        }else{
-                            callback(null, 'done');
-                        }
                     }
-                ], function (err, result) {
-                    // result now equals 'done'
                 });
+            }else{
+                callback(null);
             }
+        }else{
+            callback(null);
         }
+
+    }, function done() {
+        return mainCallback(null, finalLinks);
     });
 
-    return links;
-}
+};
 
 
-function checkIfLinkCrowled(linkHref, callback) {
+
+function checkIfLinkCrowled(linkHref) {
     mysqlOperations.getCrawledLinks(linkHref, function (results) {
-        console.log("Get crawl link:" + linkHref);
-        console.log("Query results:" + results);
         if (results.length > 0) {
-            callback(true);
+            return true;
         } else {
-            console.log("Link not crawled add link to db:" + linkHref);
-            mysqlOperations.insertCrawledLinks(global.currentWebsiteId, linkHref, function(result){
-                callback(false);
+            mysqlOperations.insertCrawledLinks(global.currentWebsiteId, linkHref, function (result) {
+                return false;
             });
         }
     });
 }
+
 
 /**
  * Returns the cleaned link
