@@ -10,8 +10,7 @@ function MysqlOperations() {
  * @param websiteLink
  * @param websiteContent
  */
-MysqlOperations.prototype.insertPageData = function (
-    websiteId, websiteUrl, contentHtml, contentText, pageViews,  pageAdded, pageShares) {
+MysqlOperations.prototype.insertPageData = function (websiteId, websiteUrl, contentHtml, contentText, pageViews, pageAdded, pageShares) {
 
     var values = {
         website_id: websiteId,
@@ -53,7 +52,7 @@ MysqlOperations.prototype.insertCrawledLinks = function (websiteId, link, callba
  * Get initial list of websites that need to be crowled
  */
 MysqlOperations.prototype.getWebsitesList = function (callback) {
-    var query = mysqlConnection.query('SELECT * FROM `website`', function(err, results) {
+    var query = mysqlConnection.query('SELECT * FROM `website`', function (err, results) {
         callback(results);
     });
 }
@@ -63,8 +62,18 @@ MysqlOperations.prototype.getWebsitesList = function (callback) {
  * Get crowled links
  */
 MysqlOperations.prototype.getCrawledLinks = function (link, callback) {
-    var queryString = 'SELECT * FROM `links_crawled` WHERE `link`= "'+link+'"';
-    var query = mysqlConnection.query(queryString, function(err, results) {
+    var queryString = 'SELECT * FROM `links_crawled` WHERE `link`= "' + link + '"';
+    var query = mysqlConnection.query(queryString, function (err, results) {
+        callback(results);
+    });
+}
+
+
+/**
+ * Get crowled links
+ */
+MysqlOperations.prototype.executeQuery = function (queryString, callback) {
+    mysqlConnection.query(queryString, function (err, results) {
         callback(results);
     });
 }

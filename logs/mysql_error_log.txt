@@ -5,3 +5,4 @@ Error: Cannot enqueue Query after invoking quit.
 Error: Cannot enqueue Query after invoking quit.
 Error: Cannot enqueue Query after invoking quit.
 Error: Cannot enqueue Query after invoking quit.
+Error: ER_BAD_NULL_ERROR: Column 'link' cannot be null

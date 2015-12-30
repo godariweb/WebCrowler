@@ -41,7 +41,7 @@ router.get('/', function (req, res, next) {
  * urlFrontier and start crawling.
  */
 function getNextWebsiteFromListAndStartCrawling() {
-    var websiteToCrowl= urlList.get().shift();
+    var websiteToCrowl = urlList.get().shift();
     urlFrontier.clear();
     urlFrontier.add(websiteToCrowl[2]);
     global.currentWebsiteId = websiteToCrowl[0];
@@ -74,6 +74,7 @@ function startCrawling() {
 function getLinkContentAndStartProcessing(url) {
     console.log('Getting content from : ' + url);
     currentCrawlingUrl = url;
+    markLinkAsCrawled();
     websiteConentGetter.getContent(url, processWebsiteContent);
 }
 
@@ -141,7 +142,7 @@ function extractText(content, callback) {
  * Extract links from content.
  */
 function extractLinks(content, callback) {
- linkExtractor.getAllLinks(currentCrawlingUrl, content, callback);
+    linkExtractor.getAllLinks(currentCrawlingUrl, content, callback);
 
 }
 
@@ -159,7 +160,7 @@ function extractPageViews(content, callback) {
  */
 function extractDate(content, callback) {
     // put here code do extract date
-    callback(null, "2015-05-20 05:03:20");
+    websiteConentGetter.getAddedDateOrTime(content, callback);
 }
 
 /**
@@ -177,6 +178,10 @@ function extractShares(content, callback) {
 function processParalelResults(results) {
     saveDataToDb(results);
     addExtractedLinksToUrlFrontier(results[2]);
+}
+
+function markLinkAsCrawled(){
+    mysqlOperations.insertCrawledLinks(global.currentWebsiteId, currentCrawlingUrl, function (result) {});
 }
 
 /**
