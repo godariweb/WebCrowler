@@ -30,32 +30,37 @@ LinkExtrator.prototype.getAllLinks = function (url, body, mainCallback) {
             var linkHref = cleanLink(href);
             if (checkIfIsValid(linkHref)) {
                 links[i] = linkHref;
-                sqlQuery += '(SELECT  count(`link`) FROM  `links_crawled`  WHERE  `link` =  "' + linkHref + '") as "' + i + '",';
+                sqlQuery += '(SELECT  count(`link`) FROM  `links_crawled`  WHERE  `link` =  "' + mysql_real_escape_string(linkHref) + '") as "' + i + '",';
                 i++;
             }
         }
     });
 
-    sqlQuery = sqlQuery.substring(0, sqlQuery.length - 1);
-    sqlQuery += ' FROM `links_crawled` GROUP BY "1";';
+    if (links.length > 0) {
+        sqlQuery = sqlQuery.substring(0, sqlQuery.length - 1);
+        sqlQuery += ' FROM `links_crawled` GROUP BY "1";';
 
-    async.series([
-            function (callback) {
-                mysqlOperations.executeQuery(sqlQuery, function (results) {
-                    var j = 0;
-                    for (var key in results[0]) {
-                        if (results[0][key] == 0) {
-                            finalLinks[j] = links[key];
-                            j++;
+        // console.log(sqlQuery);
+        async.series([
+                function (callback) {
+                    mysqlOperations.executeQuery(sqlQuery, function (results) {
+                        var j = 0;
+                        for (var key in results[0]) {
+                            if (results[0][key] == 0) {
+                                finalLinks[j] = links[key];
+                                j++;
+                            }
                         }
-                    }
-                    callback(null);
-                });
-            }
-        ],
-        function (err, results) {
-            return mainCallback(null, finalLinks);
-        });
+                        callback(null);
+                    });
+                }
+            ],
+            function (err, results) {
+                return mainCallback(null, finalLinks);
+            });
+    } else {
+        return mainCallback(null, finalLinks);
+    }
 }
 
 
@@ -248,6 +253,31 @@ function isLinkAResource(link) {
     }
 }
 
+
+function mysql_real_escape_string(str) {
+    return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function (char) {
+        switch (char) {
+            case "\0":
+                return "\\0";
+            case "\x08":
+                return "\\b";
+            case "\x09":
+                return "\\t";
+            case "\x1a":
+                return "\\z";
+            case "\n":
+                return "\\n";
+            case "\r":
+                return "\\r";
+            case "\"":
+            case "'":
+            case "\\":
+            case "%":
+                return "\\" + char; // prepends a backslash to backslash, percent,
+                                    // and double/single quotes
+        }
+    });
+}
 
 // export the class
 module.exports = LinkExtrator;
