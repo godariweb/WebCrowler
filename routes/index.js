@@ -12,6 +12,8 @@ var logComponent = require('../services/log_service');
 var risComponent = require('../components/rewind_input_steram');
 var async = require('async');
 var htmlToText = require('html-to-text');
+var HashTable = require('hashtable');
+var crypto = require('crypto');
 
 /**
  * Initializing variables
@@ -25,8 +27,8 @@ var ris = new risComponent();
 var log = new logComponent();
 var mysqlOperations = new mysqlOperationsComponent();
 
-
-var currentCrawlingUrl = null;
+global.seenUrlHashtable = new HashTable();
+global.currentCrawlingUrl = null;
 global.currentWebsiteId = null;
 
 /**
@@ -73,7 +75,7 @@ function startCrawling() {
  */
 function getLinkContentAndStartProcessing(url) {
     console.log('Getting content from : ' + url);
-    currentCrawlingUrl = url;
+    global.currentCrawlingUrl = url;
     markLinkAsCrawled();
     websiteConentGetter.getContent(url, processWebsiteContent);
 }
@@ -142,7 +144,7 @@ function extractText(content, callback) {
  * Extract links from content.
  */
 function extractLinks(content, callback) {
-    linkExtractor.getAllLinks(currentCrawlingUrl, content, callback);
+    linkExtractor.getAllLinks(global.currentCrawlingUrl, content, callback);
 
 }
 
@@ -181,7 +183,8 @@ function processParalelResults(results) {
 }
 
 function markLinkAsCrawled(){
-    mysqlOperations.insertCrawledLinks(global.currentWebsiteId, currentCrawlingUrl, function (result) {});
+    var linkHash = crypto.createHash('sha256').update(global.currentCrawlingUrl).digest('hex');
+    global.seenUrlHashtable.put(linkHash, {value: ''});
 }
 
 /**
@@ -202,7 +205,7 @@ function addExtractedLinksToUrlFrontier(links) {
 function saveDataToDb(data) {
 
     var websiteId = global.currentWebsiteId;
-    var websiteUrl = currentCrawlingUrl;
+    var websiteUrl = global.currentCrawlingUrl;
     var contentHtml = data[0];
     var contentText = data[1];
     var pageViews = data[3];

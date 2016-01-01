@@ -1,9 +1,8 @@
 var cheerio = require("cheerio");
 var isAbsoluteUrl = require('is-absolute-url');
 var urlparser = require("url");
-var mysqlOperationsComponent = require('../services/mysql_operations');
-var async = require('async');
-var mysqlOperations = new mysqlOperationsComponent();
+var crypto = require('crypto');
+
 var baseUrl = '';
 
 // Constructor
@@ -17,60 +16,24 @@ function LinkExtrator() {
  */
 LinkExtrator.prototype.getAllLinks = function (url, body, mainCallback) {
     baseUrl = getBaseUrl(url);
-    var finalLinks = [];
-
     var links = [];
     var i = 0;
-    var sqlQuery = "SELECT ";
     var $ = cheerio.load(body);
-
     $("a").each(function () {
         var href = $(this).attr("href");
         if (href) {
             var linkHref = cleanLink(href);
             if (checkIfIsValid(linkHref)) {
-                links[i] = linkHref;
-                sqlQuery += '(SELECT  count(`link`) FROM  `links_crawled`  WHERE  `link` =  "' + linkHref + '") as "' + i + '",';
-                i++;
+                var linkHash = crypto.createHash('sha256').update(linkHref).digest('hex');
+                if(!global.seenUrlHashtable.has(linkHash)){
+                    links[i] = linkHref;
+                    i++;
+                }
             }
         }
     });
-
-    sqlQuery = sqlQuery.substring(0, sqlQuery.length - 1);
-    sqlQuery += ' FROM `links_crawled` GROUP BY "1";';
-
-    async.series([
-            function (callback) {
-                mysqlOperations.executeQuery(sqlQuery, function (results) {
-                    var j = 0;
-                    for (var key in results[0]) {
-                        if (results[0][key] == 0) {
-                            finalLinks[j] = links[key];
-                            j++;
-                        }
-                    }
-                    callback(null);
-                });
-            }
-        ],
-        function (err, results) {
-            return mainCallback(null, finalLinks);
-        });
+    return mainCallback(null, links);
 }
-
-
-function checkIfLinkCrowled(linkHref) {
-    mysqlOperations.getCrawledLinks(linkHref, function (results) {
-        if (results.length > 0) {
-            return true;
-        } else {
-            mysqlOperations.insertCrawledLinks(global.currentWebsiteId, linkHref, function (result) {
-                return false;
-            });
-        }
-    });
-}
-
 
 /**
  * Returns the cleaned link
