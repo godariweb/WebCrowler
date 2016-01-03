@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="/home/otsirk/Downloads/TfIdf/commons-math-2.0.jar"/>
+	<classpathentry kind="lib" path="/home/otsirk/Downloads/TfIdf/lucene-analyzers-common-4.10.2.jar"/>
+	<classpathentry kind="lib" path="/home/otsirk/Downloads/TfIdf/lucene-core-4.10.2.jar"/>
+	<classpathentry kind="lib" path="/home/otsirk/workspace/ApacheLuceneProject/mysql-connector-java-5.1.35-bin.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
