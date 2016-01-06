@@ -57,6 +57,7 @@ UrlFrontier.prototype.isLinkInQueue = function (link) {
     fifoQueue.forEach(function (value, node) {
         if (node.value == link) {
             duplicateElements.push(value);
+            return;
         }
     })
 
