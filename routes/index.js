@@ -70,7 +70,7 @@ function startCrawling() {
 }
 
 /**
- * Get website content and start processign
+ * Get website content and start processing
  * @param url
  */
 function getLinkContentAndStartProcessing(url) {
@@ -87,7 +87,6 @@ function getLinkContentAndStartProcessing(url) {
  */
 function processWebsiteContent(websiteContent) {
     ris.setContent(websiteContent);
-    //console.log('Content getted: ' + ris.getContent());
     async.parallel([
             function (callback) {
                 extractHtml(ris.getContent(), callback)
@@ -110,7 +109,7 @@ function processWebsiteContent(websiteContent) {
         ],
         function (err, results) {
             if (!err) {
-                processParalelResults(results);
+                processParallelResults(results);
                 startCrawling();
             } else {
                 log.logError(err);
@@ -120,7 +119,7 @@ function processWebsiteContent(websiteContent) {
 }
 
 /**
- * Retrun the html content.
+ * Return the html content.
  */
 function extractHtml(content, callback) {
     callback(null, content);
@@ -169,7 +168,7 @@ function extractDate(content, callback) {
  * Extract how many users have shared the page.
  */
 function extractShares(content, callback) {
-    // put here code do extract vews
+    // put here code do extract views
     callback(null, 356);
 }
 
@@ -177,7 +176,7 @@ function extractShares(content, callback) {
 /**
  * Add data to database and add lins to url frontier.
  */
-function processParalelResults(results) {
+function processParallelResults(results) {
     saveDataToDb(results);
     addExtractedLinksToUrlFrontier(results[2]);
 }
